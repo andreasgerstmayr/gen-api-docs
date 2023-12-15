@@ -19,6 +19,8 @@ def get_default_value(obj):
         return "0"
     elif obj.get("x-kubernetes-int-or-string", False):
         return "1Gi"
+    elif obj.get("x-kubernetes-preserve-unknown-fields", False):
+        return "{}"
     else:
         return ""
 
