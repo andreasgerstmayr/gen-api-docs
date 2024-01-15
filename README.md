@@ -7,6 +7,11 @@ To generate a full CR of the [Tempo Operator CRD](https://raw.githubusercontent.
 ./crd-to-cr.py < tempo.grafana.com_tempostacks.yaml > tempostack.yaml
 ```
 
+With docker:
+```bash
+docker run -i ghcr.io/andreasgerstmayr/crd-to-cr < tempo.grafana.com_tempostacks.yaml > tempostack.yaml
+```
+
 # Example Output
 ```yaml
 apiVersion: tempo.grafana.com/v1alpha1   # APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
