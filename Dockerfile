@@ -1,10 +1,15 @@
-FROM python:3-alpine
+FROM golang:1.21 AS build
+WORKDIR /app
 
-WORKDIR /usr/src/app
+COPY go.mod go.sum .
+RUN go mod download
 
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+COPY main.go .
+RUN CGO_ENABLED=0 go build -o /crd-to-cr
 
-COPY . .
 
-CMD ["python", "./crd-to-cr.py"]
+FROM gcr.io/distroless/static:nonroot
+WORKDIR /
+COPY --from=build /crd-to-cr .
+USER nonroot:nonroot
+ENTRYPOINT ["/crd-to-cr"]

@@ -4,7 +4,7 @@ This tool reads a Kubernetes Custom Resource Definition (CRD) and outputs a comm
 # Usage
 To generate a full CR of the [Tempo Operator CRD](https://raw.githubusercontent.com/grafana/tempo-operator/5a79e619f268dac0fefd6cc394555582b17de520/bundle/community/manifests/tempo.grafana.com_tempostacks.yaml):
 ```bash
-./crd-to-cr.py < tempo.grafana.com_tempostacks.yaml > tempostack.yaml
+go run main.go < tempo.grafana.com_tempostacks.yaml > tempostack.yaml
 ```
 
 With docker:
