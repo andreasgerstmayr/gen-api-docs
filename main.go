@@ -17,7 +17,11 @@ const (
 )
 
 func writeLine(out io.Writer, line string, comment string) {
-	padding := max(0, COMMENT_PADDING-len(line))
+	padding := COMMENT_PADDING - len(line)
+	if padding < 0 {
+		padding = 0
+	}
+
 	if comment != "" {
 		fmt.Fprintf(out, "%s%s # %s\n", line, strings.Repeat(" ", padding), comment)
 	} else {
