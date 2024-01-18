@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -12,12 +13,12 @@ import (
 	k8syaml "k8s.io/apimachinery/pkg/util/yaml"
 )
 
-const (
-	COMMENT_PADDING = 40
+var (
+	CommentPadding int
 )
 
 func writeLine(out io.Writer, line string, comment string) {
-	padding := COMMENT_PADDING - len(line)
+	padding := CommentPadding - len(line)
 	if padding < 0 {
 		padding = 0
 	}
@@ -41,7 +42,7 @@ func getDefaultValue(props apiextensionsv1.JSONSchemaProps) string {
 	case props.Type == "integer":
 		return "0"
 	case props.XIntOrString:
-		return "1Gi"
+		return "0Gi"
 	case props.XPreserveUnknownFields != nil && *props.XPreserveUnknownFields:
 		return "{}"
 	default:
@@ -134,6 +135,9 @@ func run(in io.Reader, out io.Writer) error {
 }
 
 func main() {
+	flag.IntVar(&CommentPadding, "padding", 40, "comment padding")
+	flag.Parse()
+
 	err := run(os.Stdin, os.Stdout)
 	if err != nil {
 		log.Fatalf("error: %v", err)
