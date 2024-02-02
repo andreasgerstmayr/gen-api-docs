@@ -4,12 +4,12 @@ WORKDIR /app
 COPY go.mod go.sum .
 RUN go mod download
 
-COPY main.go .
-RUN CGO_ENABLED=0 go build -o /crd-to-cr
+COPY . .
+RUN CGO_ENABLED=0 go build -o /gen-api-docs
 
 
 FROM gcr.io/distroless/static:nonroot
 WORKDIR /
-COPY --from=build /crd-to-cr .
+COPY --from=build /gen-api-docs .
 USER nonroot:nonroot
-ENTRYPOINT ["/crd-to-cr"]
+ENTRYPOINT ["/gen-api-docs"]

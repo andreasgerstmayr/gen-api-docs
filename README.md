@@ -1,4 +1,4 @@
-# crd-to-cr
+# gen-api-docs
 This tool reads a Kubernetes Custom Resource Definition (CRD) and outputs a commented, full example Custom Resource (CR).
 
 # Usage
@@ -9,7 +9,7 @@ go run main.go < tempo.grafana.com_tempostacks.yaml > tempostack.yaml
 
 With docker:
 ```bash
-docker run -i ghcr.io/andreasgerstmayr/crd-to-cr < tempo.grafana.com_tempostacks.yaml > tempostack.yaml
+docker run -i ghcr.io/andreasgerstmayr/gen-api-docs < tempo.grafana.com_tempostacks.yaml > tempostack.yaml
 ```
 
 # Example Output

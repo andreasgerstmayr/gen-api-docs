@@ -1,10 +1,11 @@
-module github.com/andreasgerstmayr/crd-to-cr
+module github.com/andreasgerstmayr/gen-api-docs
 
 go 1.20
 
 require (
 	k8s.io/apiextensions-apiserver v0.28.5
 	k8s.io/apimachinery v0.28.5
+	k8s.io/gengo v0.0.0-20220902162205-c0856e24416d
 )
 
 require (
