@@ -25,6 +25,8 @@ func getDefaultValue(props apiextensionsv1.JSONSchemaProps) string {
 		return "0Gi"
 	case props.XPreserveUnknownFields != nil && *props.XPreserveUnknownFields:
 		return "{}"
+	case props.Type == "object" && props.AdditionalProperties != nil && props.AdditionalProperties.Schema != nil && props.AdditionalProperties.Schema.Type == "string": // map[string]string
+		return "{}"
 	default:
 		return ""
 	}
