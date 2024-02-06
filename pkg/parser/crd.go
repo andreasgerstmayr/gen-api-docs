@@ -38,7 +38,9 @@ func renderCRD(out io.Writer, props apiextensionsv1.JSONSchemaProps, level int, 
 		for name := range props.Properties {
 			names = append(names, name)
 		}
-		sort.Strings(names)
+		sort.SliceStable(names, func(i int, j int) bool {
+			return sortByCategory(names[i], names[j])
+		})
 
 		isFirstElem := true
 		for _, name := range names {

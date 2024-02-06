@@ -28,3 +28,25 @@ func writeLine(out io.Writer, line string, comment string) {
 func formatComment(props apiextensionsv1.JSONSchemaProps) string {
 	return strings.ReplaceAll(props.Description, "\n", " ")
 }
+
+func sortCategory(name string) int {
+	switch name {
+	case "enabled":
+		return 0
+	case "nodeSelector", "tolerations", "affinity", "resources":
+		return 2
+	default:
+		return 1
+	}
+}
+
+// sort property names: enabled < all other property names < nodeSelector, tolerations, affinity, resources
+func sortByCategory(a string, b string) bool {
+	catA := sortCategory(a)
+	catB := sortCategory(b)
+	if catA == catB {
+		return a < b
+	} else {
+		return catA < catB
+	}
+}
