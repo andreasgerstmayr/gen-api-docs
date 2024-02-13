@@ -23,9 +23,13 @@ func getDefaultValue(props apiextensionsv1.JSONSchemaProps) string {
 		return "0"
 	case props.XIntOrString:
 		return "0Gi"
-	case props.XPreserveUnknownFields != nil && *props.XPreserveUnknownFields:
+	case props.XPreserveUnknownFields != nil && *props.XPreserveUnknownFields: // apiextensionsv1.JSON
 		return "{}"
 	case props.Type == "object" && props.AdditionalProperties != nil && props.AdditionalProperties.Schema != nil && props.AdditionalProperties.Schema.Type == "string": // map[string]string
+		return "{}"
+	case strings.Contains(props.Description, "Describes node affinity scheduling rules for the pod"), // built-in nodeAffinity, podAffinity and podAntiAffinity types
+		strings.Contains(props.Description, "Describes pod affinity scheduling rules"),
+		strings.Contains(props.Description, "Describes pod anti-affinity scheduling rules"):
 		return "{}"
 	default:
 		return ""
