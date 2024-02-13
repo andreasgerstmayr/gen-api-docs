@@ -10,6 +10,7 @@ import (
 
 func main() {
 	flag.IntVar(&parser.CommentPadding, "padding", 40, "comment padding")
+	flag.BoolVar(&parser.HideCoreTypes, "hideCoreTypes", true, "hide core types")
 	pkgName := flag.String("pkg", "", "package name")
 	typeName := flag.String("type", "", "type name")
 	flag.Parse()

@@ -10,6 +10,9 @@ import (
 
 var (
 	CommentPadding int
+	HideCoreTypes  bool
+
+	coreTypes = []string{"tolerations", "nodeAffinity", "podAffinity", "podAntiAffinity"}
 )
 
 func writeLine(out io.Writer, line string, comment string) {

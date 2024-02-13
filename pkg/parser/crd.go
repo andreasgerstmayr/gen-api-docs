@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"io"
+	"slices"
 	"sort"
 	"strings"
 
@@ -10,11 +11,13 @@ import (
 	k8syaml "k8s.io/apimachinery/pkg/util/yaml"
 )
 
-func getDefaultValue(props apiextensionsv1.JSONSchemaProps) string {
+func getDefaultValue(name string, props apiextensionsv1.JSONSchemaProps) string {
 	switch {
 	case props.Default != nil:
 		b, _ := props.Default.MarshalJSON()
 		return string(b)
+	case HideCoreTypes && slices.Contains(coreTypes, name):
+		return "{}"
 	case props.Type == "string":
 		return "\"\""
 	case props.Type == "boolean":
@@ -26,10 +29,6 @@ func getDefaultValue(props apiextensionsv1.JSONSchemaProps) string {
 	case props.XPreserveUnknownFields != nil && *props.XPreserveUnknownFields: // apiextensionsv1.JSON
 		return "{}"
 	case props.Type == "object" && props.AdditionalProperties != nil && props.AdditionalProperties.Schema != nil && props.AdditionalProperties.Schema.Type == "string": // map[string]string
-		return "{}"
-	case strings.Contains(props.Description, "Describes node affinity scheduling rules for the pod"), // built-in nodeAffinity, podAffinity and podAntiAffinity types
-		strings.Contains(props.Description, "Describes pod affinity scheduling rules"),
-		strings.Contains(props.Description, "Describes pod anti-affinity scheduling rules"):
 		return "{}"
 	default:
 		return ""
@@ -58,7 +57,7 @@ func renderCRD(out io.Writer, props apiextensionsv1.JSONSchemaProps, level int, 
 				indent = strings.Repeat("  ", level)
 			}
 			comment := formatComment(member)
-			value := getDefaultValue(member)
+			value := getDefaultValue(name, member)
 
 			if value != "" {
 				writeLine(out, fmt.Sprintf("%s%s: %s", indent, name, value), comment)
@@ -73,7 +72,7 @@ func renderCRD(out io.Writer, props apiextensionsv1.JSONSchemaProps, level int, 
 	case props.Type == "object" && props.AdditionalProperties != nil: // map
 		indent := strings.Repeat("  ", level)
 		comment := formatComment(*props.AdditionalProperties.Schema)
-		value := getDefaultValue(*props.AdditionalProperties.Schema)
+		value := getDefaultValue("", *props.AdditionalProperties.Schema)
 
 		if strings.Contains(props.Description, "Requests describes the minimum amount of compute resources required.") {
 			writeLine(out, fmt.Sprintf("%scpu: \"%s\"", indent, "500m"), comment)
@@ -91,7 +90,7 @@ func renderCRD(out io.Writer, props apiextensionsv1.JSONSchemaProps, level int, 
 	case props.Type == "array":
 		indent := strings.Repeat("  ", level-1)
 		comment := formatComment(*props.Items.Schema)
-		value := getDefaultValue(*props.Items.Schema)
+		value := getDefaultValue("", *props.Items.Schema)
 		if value != "" {
 			writeLine(out, fmt.Sprintf("%s- %s", indent, value), comment)
 		} else {
