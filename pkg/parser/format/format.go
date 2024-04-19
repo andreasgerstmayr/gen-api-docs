@@ -99,7 +99,11 @@ func writeMultilineComment(out io.Writer, commentLines []string, indent string) 
 	}
 
 	for _, line := range commentLines {
-		fmt.Fprintf(out, "%s# %s\n", indent, line)
+		if len(line) > 0 {
+			fmt.Fprintf(out, "%s# %s\n", indent, line)
+		} else {
+			fmt.Fprintf(out, "%s#\n", indent)
+		}
 	}
 }
 
