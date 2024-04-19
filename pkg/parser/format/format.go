@@ -3,7 +3,6 @@ package format
 import (
 	"fmt"
 	"io"
-	"regexp"
 	"sort"
 	"strings"
 )
@@ -18,7 +17,7 @@ var (
 
 type Prop struct {
 	Key     string
-	Comment string
+	Comment []string
 
 	// below types are exclusive
 	ScalarValue string
@@ -48,15 +47,13 @@ func sortByCategory(a string, b string) bool {
 	}
 }
 
-var regexpLinebreak = regexp.MustCompile(`\s*\n\s*`)
-
-func writeCommentLine(out io.Writer, line string, comment string) {
+func writeCommentLine(out io.Writer, line string, commentLines []string) {
 	padding := CommentPadding - len(line)
 	if padding < 0 {
 		padding = 0
 	}
 
-	comment = regexpLinebreak.ReplaceAllString(comment, " ")
+	comment := strings.Join(commentLines, " ")
 	if comment != "" {
 		fmt.Fprintf(out, "%s%s # %s\n", line, strings.Repeat(" ", padding), comment)
 	} else {
@@ -96,15 +93,14 @@ func printOneline(out io.Writer, p *Prop, level int, isList bool) {
 	}
 }
 
-var regexpSentenceEnd = regexp.MustCompile(`\.\s+`)
-
-func writeMultilineComment(out io.Writer, comment string, indent string) {
-	if comment == "" {
-		return
+func writeMultilineComment(out io.Writer, commentLines []string, indent string) {
+	if len(commentLines) > 0 {
+		fmt.Fprintf(out, "\n")
 	}
 
-	comment = regexpSentenceEnd.ReplaceAllString(comment, ".\n"+indent+"# ")
-	fmt.Fprintf(out, "\n%s# %s\n", indent, comment)
+	for _, line := range commentLines {
+		fmt.Fprintf(out, "%s# %s\n", indent, line)
+	}
 }
 
 func printMultiline(out io.Writer, p *Prop, level int, isList bool) {

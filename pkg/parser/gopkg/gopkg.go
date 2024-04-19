@@ -23,14 +23,27 @@ func fieldEmbedded(m types.Member) bool {
 	return strings.Contains(reflect.StructTag(m.Tags).Get("json"), ",inline")
 }
 
-func formatComment(commentLines []string) string {
+func formatComment(commentLines []string) []string {
+	if len(commentLines) == 1 && commentLines[0] == "" {
+		return []string{}
+	}
+
 	out := []string{}
 	for _, line := range commentLines {
-		if len(line) > 0 && !strings.HasPrefix(line, "+") {
+		if !strings.HasPrefix(line, "+") {
 			out = append(out, line)
 		}
 	}
-	return strings.Join(out, " ")
+
+	// trim empty lines at end
+	for i := len(out) - 1; i > 0; i-- {
+		if out[i] == "" {
+			out = out[:i]
+		} else {
+			break
+		}
+	}
+	return out
 }
 
 // deref resolves pointers and aliases
@@ -119,12 +132,12 @@ func render(type_ *types.Type, prop *format.Prop, parentCommentLines []string) {
 			ScalarValue: getDefaultValue("", type_.Elem),
 		}
 
-		if strings.Contains(formatComment(parentCommentLines), "Requests describes the minimum amount of compute resources required.") {
+		if len(parentCommentLines) > 0 && strings.Contains(parentCommentLines[0], "Requests describes the minimum amount of compute resources required.") {
 			prop.Properties = []*format.Prop{
 				{Key: "cpu", ScalarValue: "\"500m\""},
 				{Key: "memory", ScalarValue: "\"1Gi\""},
 			}
-		} else if strings.Contains(formatComment(parentCommentLines), "Limits describes the maximum amount of compute resources allowed.") {
+		} else if len(parentCommentLines) > 0 && strings.Contains(parentCommentLines[0], "Limits describes the maximum amount of compute resources allowed.") {
 			prop.Properties = []*format.Prop{
 				{Key: "cpu", ScalarValue: "\"750m\""},
 				{Key: "memory", ScalarValue: "\"2Gi\""},

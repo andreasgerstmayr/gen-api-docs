@@ -38,13 +38,21 @@ func getDefaultValue(name string, props apiextensionsv1.JSONSchemaProps) string 
 	}
 }
 
+func formatComment(comment string) []string {
+	if len(comment) > 0 {
+		return strings.Split(comment, "\n")
+	} else {
+		return []string{}
+	}
+}
+
 func render(schemaProps apiextensionsv1.JSONSchemaProps, prop *format.Prop) {
 	switch {
 	case schemaProps.Type == "object" && len(schemaProps.Properties) > 0: // struct
 		for name, member := range schemaProps.Properties {
 			p := &format.Prop{
 				Key:         name,
-				Comment:     member.Description,
+				Comment:     formatComment(member.Description),
 				ScalarValue: getDefaultValue(name, member),
 			}
 			prop.Properties = append(prop.Properties, p)
@@ -56,7 +64,7 @@ func render(schemaProps apiextensionsv1.JSONSchemaProps, prop *format.Prop) {
 	case schemaProps.Type == "object" && schemaProps.AdditionalProperties != nil: // map
 		p := &format.Prop{
 			Key:         "\"key\"",
-			Comment:     schemaProps.AdditionalProperties.Schema.Description,
+			Comment:     formatComment(schemaProps.AdditionalProperties.Schema.Description),
 			ScalarValue: getDefaultValue("", *schemaProps.AdditionalProperties.Schema),
 		}
 
@@ -79,7 +87,7 @@ func render(schemaProps apiextensionsv1.JSONSchemaProps, prop *format.Prop) {
 
 	case schemaProps.Type == "array":
 		prop.ListItem = &format.Prop{
-			Comment:     schemaProps.Items.Schema.Description,
+			Comment:     formatComment(schemaProps.Items.Schema.Description),
 			ScalarValue: getDefaultValue("", *schemaProps.Items.Schema),
 		}
 		if prop.ListItem.ScalarValue == "" {
@@ -104,7 +112,7 @@ func Parse(in io.Reader) (format.Prop, error) {
 	prop.Properties = append(prop.Properties, &format.Prop{
 		Key:         "apiVersion",
 		ScalarValue: fmt.Sprintf("%s/%s", spec.Group, version.Name),
-		Comment:     apiVersionProps.Description,
+		Comment:     formatComment(apiVersionProps.Description),
 	})
 	delete(schema.Properties, "apiVersion")
 
@@ -112,7 +120,7 @@ func Parse(in io.Reader) (format.Prop, error) {
 	prop.Properties = append(prop.Properties, &format.Prop{
 		Key:         "kind",
 		ScalarValue: spec.Names.Kind,
-		Comment:     kindProps.Description,
+		Comment:     formatComment(kindProps.Description),
 	})
 	delete(schema.Properties, "kind")
 
